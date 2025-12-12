@@ -65,12 +65,13 @@ export default function PortfolioPage() {
         {/* Username input */}
         <div className="flex flex-wrap gap-3 mb-3">
           <input
-            type="text"
-            placeholder="GitHub username (e.g. Bosanes)"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="flex-1 min-w-[220px] rounded-lg border px-4 py-2"
-          />
+             type="text"
+             placeholder="GitHub username (e.g. Bosanes)"
+             value={username}
+             onChange={(e) => setUsername(e.target.value)}
+             className="flex-1 min-w-[220px] rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-300"
+        />
+
           <button
             onClick={generatePortfolio}
             disabled={loading}
@@ -82,12 +83,13 @@ export default function PortfolioPage() {
 
         {/* Bio input */}
         <textarea
-          placeholder="Short bio (e.g. Full-stack developer focused on modern web technologies)"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          className="w-full rounded-lg border px-4 py-2 mb-6"
-          rows={2}
+            placeholder="Short bio (e.g. Full-stack developer focused on modern web technologies)"
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-300 mb-6"
+            rows={2}
         />
+
 
         {/* Template selector */}
         <div className="flex items-center gap-3 mb-8">
