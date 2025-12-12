@@ -1,5 +1,4 @@
-"use client";
-
+import type { Metadata } from "next";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import MinimalTemplate from "@/components/templates/MinimalTemplate";
@@ -12,6 +11,38 @@ type Project = {
   ai_summary: string;
 };
 
+/* ---------------- SEO METADATA ---------------- */
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { username: string };
+}): Promise<Metadata> {
+  const username = params.username;
+
+  const title = `${username} – Developer Portfolio`;
+  const description = `AI-generated developer portfolio for ${username}, showcasing GitHub projects and technical skills.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://ai-portfolio-generator.vercel.app/p/${username}`,
+      siteName: "AI Portfolio Generator",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
+
+/* ---------------- PAGE ---------------- */
+
 export default function PublicPortfolioPage() {
   const { username } = useParams<{ username: string }>();
 
@@ -20,7 +51,6 @@ export default function PublicPortfolioPage() {
   const [error, setError] = useState<string | null>(null);
   const [template, setTemplate] = useState<"minimal" | "dark">("minimal");
 
-  // Default bio for public pages (can be replaced later)
   const bio = "Developer portfolio generated from GitHub.";
 
   useEffect(() => {
@@ -70,7 +100,6 @@ export default function PublicPortfolioPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Top controls */}
         <div className="flex justify-between items-center mb-6">
           <button
             onClick={() =>
@@ -108,7 +137,6 @@ export default function PublicPortfolioPage() {
           </div>
         </div>
 
-        {/* Portfolio */}
         {template === "minimal" ? (
           <MinimalTemplate
             username={username}
