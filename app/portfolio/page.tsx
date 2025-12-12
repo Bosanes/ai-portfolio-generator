@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import MinimalTemplate from "@/components/templates/MinimalTemplate";
+import DarkTemplate from "@/components/templates/DarkTemplate";
 
 type Project = {
   name: string;
@@ -14,6 +16,7 @@ export default function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [template, setTemplate] = useState<"minimal" | "dark">("minimal");
 
   async function generatePortfolio() {
     if (!username.trim()) {
@@ -26,29 +29,20 @@ export default function PortfolioPage() {
     setProjects([]);
 
     try {
-      // 1) Fetch GitHub repos for the entered username
       const ghRes = await fetch(
         `/api/github/import?username=${encodeURIComponent(username)}`
       );
-
-      if (!ghRes.ok) {
-        throw new Error("Failed to fetch GitHub repositories.");
-      }
-
+      if (!ghRes.ok) throw new Error("Failed to fetch GitHub repositories.");
       const ghData = await ghRes.json();
 
-      // 2) Send repos to AI summary API (mocked)
       const aiRes = await fetch("/api/github/ai-summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projects: ghData.projects }),
       });
-
-      if (!aiRes.ok) {
-        throw new Error("Failed to generate project summaries.");
-      }
-
+      if (!aiRes.ok) throw new Error("Failed to generate summaries.");
       const aiData = await aiRes.json();
+
       setProjects(aiData.projects);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
@@ -59,7 +53,7 @@ export default function PortfolioPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold mb-2">
           AI Developer Portfolio Generator
         </h1>
@@ -67,14 +61,14 @@ export default function PortfolioPage() {
           Enter a GitHub username to generate a professional developer portfolio.
         </p>
 
-        {/* Input section */}
-        <div className="flex gap-3 mb-6">
+        {/* Input */}
+        <div className="flex flex-wrap gap-3 mb-4">
           <input
             type="text"
             placeholder="GitHub username (e.g. Bosanes)"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="flex-1 rounded-lg border px-4 py-2 focus:outline-none focus:ring"
+            className="flex-1 min-w-[220px] rounded-lg border px-4 py-2"
           />
           <button
             onClick={generatePortfolio}
@@ -85,46 +79,55 @@ export default function PortfolioPage() {
           </button>
         </div>
 
-        {error && (
-          <p className="text-red-600 mb-6">
-            {error}
-          </p>
-        )}
+        {/* Template selector */}
+        <div className="flex items-center gap-3 mb-8">
+          <span className="text-sm text-gray-600">Template:</span>
+
+          <button
+            onClick={() => setTemplate("minimal")}
+            className={`rounded-lg px-3 py-1 text-sm border ${
+              template === "minimal"
+                ? "bg-black text-white"
+                : "bg-white"
+            }`}
+          >
+            Minimal
+          </button>
+
+          <button
+            onClick={() => setTemplate("dark")}
+            className={`rounded-lg px-3 py-1 text-sm border ${
+              template === "dark"
+                ? "bg-black text-white"
+                : "bg-white"
+            }`}
+          >
+            Dark
+          </button>
+        </div>
+
+        {error && <p className="text-red-600 mb-6">{error}</p>}
 
         {/* Results */}
         {projects.length > 0 && (
-          <div className="space-y-6">
-            {projects.map((project) => (
-              <div
-                key={project.name}
-                className="bg-white rounded-xl p-6 shadow-sm border"
-              >
-                <h2 className="text-xl font-semibold">
-                  {project.name}
-                </h2>
-
-                {project.language && (
-                  <p className="text-sm text-gray-500">
-                    Tech: {project.language}
-                  </p>
-                )}
-
-                <p className="mt-3 text-gray-700">
-                  {project.ai_summary}
-                </p>
-
-                {project.url && (
-                  <a
-                    href={project.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-block mt-4 text-blue-600 hover:underline"
-                  >
-                    View on GitHub →
-                  </a>
-                )}
-              </div>
-            ))}
+          <div
+            className={
+              template === "dark"
+                ? "bg-neutral-950 p-6 rounded-2xl"
+                : ""
+            }
+          >
+            {template === "minimal" ? (
+              <MinimalTemplate
+                username={username}
+                projects={projects}
+              />
+            ) : (
+              <DarkTemplate
+                username={username}
+                projects={projects}
+              />
+            )}
           </div>
         )}
       </div>
