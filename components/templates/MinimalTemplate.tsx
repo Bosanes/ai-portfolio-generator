@@ -7,9 +7,11 @@ type Project = {
 
 export default function MinimalTemplate({
   username,
+  bio,
   projects,
 }: {
   username: string;
+  bio?: string;
   projects: Project[];
 }) {
   return (
@@ -18,8 +20,9 @@ export default function MinimalTemplate({
         <h1 className="text-4xl font-bold text-gray-900">
           {username}
         </h1>
-        <p className="text-gray-700 mt-2">
-          Developer portfolio generated from GitHub.
+
+        <p className="text-gray-800 mt-2 font-medium">
+          {bio || "Developer portfolio generated from GitHub."}
         </p>
       </header>
 

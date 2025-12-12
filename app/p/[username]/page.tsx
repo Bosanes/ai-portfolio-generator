@@ -20,6 +20,9 @@ export default function PublicPortfolioPage() {
   const [error, setError] = useState<string | null>(null);
   const [template, setTemplate] = useState<"minimal" | "dark">("minimal");
 
+  // Default bio for public pages (can be replaced later)
+  const bio = "Developer portfolio generated from GitHub.";
+
   useEffect(() => {
     async function loadPortfolio() {
       try {
@@ -107,10 +110,18 @@ export default function PublicPortfolioPage() {
 
         {/* Portfolio */}
         {template === "minimal" ? (
-          <MinimalTemplate username={username} projects={projects} />
+          <MinimalTemplate
+            username={username}
+            bio={bio}
+            projects={projects}
+          />
         ) : (
           <div className="bg-neutral-950 p-6 rounded-2xl">
-            <DarkTemplate username={username} projects={projects} />
+            <DarkTemplate
+              username={username}
+              bio={bio}
+              projects={projects}
+            />
           </div>
         )}
       </div>
