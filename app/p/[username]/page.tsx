@@ -23,14 +23,12 @@ export default function PublicPortfolioPage() {
   useEffect(() => {
     async function loadPortfolio() {
       try {
-        // 1) GitHub import
         const ghRes = await fetch(
           `/api/github/import?username=${encodeURIComponent(username)}`
         );
         if (!ghRes.ok) throw new Error("GitHub user not found");
         const ghData = await ghRes.json();
 
-        // 2) AI summaries (mock)
         const aiRes = await fetch("/api/github/ai-summarize", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -69,24 +67,42 @@ export default function PublicPortfolioPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Template switcher */}
-        <div className="flex justify-end gap-2 mb-6">
+        {/* Top controls */}
+        <div className="flex justify-between items-center mb-6">
           <button
-            onClick={() => setTemplate("minimal")}
-            className={`px-3 py-1 text-sm rounded border ${
-              template === "minimal" ? "bg-black text-white" : "bg-white"
-            }`}
+            onClick={() =>
+              navigator.clipboard.writeText(
+                `${window.location.origin}/p/${username}`
+              )
+            }
+            className="text-sm rounded-lg border px-3 py-1 hover:bg-gray-100"
           >
-            Minimal
+            Copy portfolio link
           </button>
-          <button
-            onClick={() => setTemplate("dark")}
-            className={`px-3 py-1 text-sm rounded border ${
-              template === "dark" ? "bg-black text-white" : "bg-white"
-            }`}
-          >
-            Dark
-          </button>
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setTemplate("minimal")}
+              className={`px-3 py-1 text-sm rounded border ${
+                template === "minimal"
+                  ? "bg-black text-white"
+                  : "bg-white"
+              }`}
+            >
+              Minimal
+            </button>
+
+            <button
+              onClick={() => setTemplate("dark")}
+              className={`px-3 py-1 text-sm rounded border ${
+                template === "dark"
+                  ? "bg-black text-white"
+                  : "bg-white"
+              }`}
+            >
+              Dark
+            </button>
+          </div>
         </div>
 
         {/* Portfolio */}
