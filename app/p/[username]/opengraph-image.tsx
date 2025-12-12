@@ -2,137 +2,93 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-type GitHubRepo = {
-  language: string | null;
+export const size = {
+  width: 1200,
+  height: 630,
 };
 
-export default async function OpenGraphImage({
+export const contentType = "image/png";
+
+export default async function OGImage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const username = params.username;
+  const { username } = await params;
 
-  /* ---------- Fetch GitHub user ---------- */
+  let avatarUrl: string | null = null;
+  let techStack: string[] = ["JavaScript", "TypeScript", "React"];
 
-  const userRes = await fetch(`https://api.github.com/users/${username}`, {
-    headers: { Accept: "application/vnd.github+json" },
-  });
+  try {
+    const res = await fetch(`https://api.github.com/users/${username}`, {
+      headers: {
+        Accept: "application/vnd.github+json",
+      },
+    });
 
-  if (!userRes.ok) {
-    return new ImageResponse(
-      <div
-        style={{
-          width: "1200px",
-          height: "630px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#020617",
-          color: "white",
-          fontSize: 48,
-        }}
-      >
-        User not found
-      </div>,
-      { width: 1200, height: 630 }
-    );
+    if (res.ok) {
+      const user = await res.json();
+      avatarUrl = user.avatar_url ?? null;
+    }
+  } catch {
+    // swallow error – OG images must never throw
   }
-
-  const user = await userRes.json();
-
-  /* ---------- Fetch repos ---------- */
-
-  const reposRes = await fetch(
-    `https://api.github.com/users/${username}/repos?per_page=100`,
-    {
-      headers: { Accept: "application/vnd.github+json" },
-    }
-  );
-
-  const repos: GitHubRepo[] = reposRes.ok ? await reposRes.json() : [];
-
-  /* ---------- Compute tech stack ---------- */
-
-  const languageCount: Record<string, number> = {};
-
-  repos.forEach((repo) => {
-    if (repo.language) {
-      languageCount[repo.language] =
-        (languageCount[repo.language] || 0) + 1;
-    }
-  });
-
-  const techStack = Object.entries(languageCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([lang]) => lang);
-
-  const avatarUrl =
-    user.avatar_url || "https://github.com/github.png";
-
-  /* ---------- OG Image ---------- */
 
   return new ImageResponse(
     (
       <div
         style={{
-          width: "1200px",
-          height: "630px",
+          width: "100%",
+          height: "100%",
           display: "flex",
           alignItems: "center",
-          padding: "80px",
-          background:
-            "linear-gradient(135deg, #020617 0%, #020617 100%)",
+          background: "linear-gradient(135deg, #020617, #020617)",
           color: "white",
+          padding: 80,
           fontFamily: "Inter, sans-serif",
         }}
       >
         {/* Avatar */}
-        <img
-          src={avatarUrl}
-          width={180}
-          height={180}
-          style={{
-            borderRadius: "50%",
-            border: "4px solid #334155",
-          }}
-        />
-
-        {/* Text */}
-        <div style={{ marginLeft: "48px" }}>
-          <h1 style={{ fontSize: "56px", margin: 0 }}>
-            {username}
-          </h1>
-
-          <p
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            width={180}
+            height={180}
             style={{
-              fontSize: "26px",
-              color: "#94a3b8",
-              marginTop: "12px",
+              borderRadius: "50%",
+              marginRight: 60,
             }}
-          >
+          />
+        ) : (
+          <div
+            style={{
+              width: 180,
+              height: 180,
+              borderRadius: "50%",
+              background: "#1e293b",
+              marginRight: 60,
+            }}
+          />
+        )}
+
+        {/* Content */}
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <h1 style={{ fontSize: 56, margin: 0 }}>{username}</h1>
+          <p style={{ fontSize: 26, opacity: 0.85, marginTop: 10 }}>
             Developer Portfolio
           </p>
 
           {/* Tech stack */}
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              marginTop: "24px",
-              flexWrap: "wrap",
-            }}
-          >
+          <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
             {techStack.map((tech) => (
               <span
                 key={tech}
                 style={{
+                  fontSize: 20,
                   padding: "8px 14px",
-                  borderRadius: "999px",
+                  borderRadius: 999,
                   background: "#0f172a",
-                  border: "1px solid #334155",
-                  fontSize: "18px",
+                  border: "1px solid #1e293b",
                 }}
               >
                 {tech}
@@ -142,9 +98,6 @@ export default async function OpenGraphImage({
         </div>
       </div>
     ),
-    {
-      width: 1200,
-      height: 630,
-    }
+    size
   );
 }
